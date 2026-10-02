@@ -84,6 +84,11 @@
         <span class="hidden md:inline-block bg-emerald-800/80 px-2 py-0.5 rounded text-[11px] font-medium text-emerald-200">IKAPI No. 248/JTI/2022</span>
       </div>
       <div class="flex items-center gap-3">
+        <!-- Google Cloud Sync Badge Status -->
+        <div id="topbar-sync-badge" onclick="openGSuiteModalDirectly()" class="cursor-pointer hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-700/60 text-[11px] hover:border-emerald-400 transition" title="Klik untuk mengelola Sinkronisasi Google Sheets & Drive">
+          <span id="sync-indicator-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="sync-indicator-text" class="text-emerald-300 font-medium">Google Sync: Aktif</span>
+        </div>
         <!-- Language Switcher -->
         <div class="flex items-center bg-emerald-950/60 rounded-full p-0.5 border border-emerald-700/50">
           <button onclick="setLanguage('id')" id="lang-btn-id" class="px-2.5 py-0.5 rounded-full text-xs font-semibold transition bg-emerald-600 text-white">ID</button>
@@ -670,6 +675,10 @@
             <i data-lucide="settings" class="w-4 h-4"></i>
             <span>Pengaturan Header/Footer</span>
           </button>
+          <button onclick="switchAdminTab('gsuite')" id="admtab-gsuite" class="admtab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-800">
+            <i data-lucide="cloud" class="w-4 h-4 text-emerald-600"></i>
+            <span>Google Sheets & Drive</span>
+          </button>
         </aside>
 
         <!-- Admin Panes Container -->
@@ -908,6 +917,102 @@
                 Simpan Semua Perubahan Tampilan
               </button>
             </form>
+          </div>
+
+          <!-- PANE: GOOGLE SHEETS & GOOGLE DRIVE INTEGRATION -->
+          <div id="admin-pane-gsuite" class="admin-pane hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div>
+                <h3 class="font-serif font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <i data-lucide="cloud-cog" class="w-5 h-5 text-emerald-600"></i>
+                  Integrasi Google Sheets & Google Drive
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Sinkronisasi database awan & penyimpanan file naskah secara otomatis.</p>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="testGoogleConnection()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5">
+                  <i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i>
+                  <span>Cek Koneksi</span>
+                </button>
+                <button type="button" onclick="handleAutoInitSheets()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  <span>Buat Sheet Otomatis</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Connected Cloud Resource Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <i data-lucide="table-2" class="w-4 h-4"></i> Google Sheet Database
+                  </span>
+                  <a href="https://docs.google.com/spreadsheets/d/19LZshvPcKRGksvyHypLCpPUIH0Nli05I9NPWpqhHUU0" target="_blank" class="text-[11px] font-semibold text-emerald-600 hover:underline flex items-center gap-1">
+                    <span>Buka Sheet</span> <i data-lucide="external-link" class="w-3 h-3"></i>
+                  </a>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">ID Spreadsheet:</p>
+                <div class="font-mono text-xs bg-white dark:bg-slate-900 p-2 rounded-lg border border-emerald-200 dark:border-emerald-900 break-all select-all font-semibold text-slate-800 dark:text-slate-200">
+                  19LZshvPcKRGksvyHypLCpPUIH0Nli05I9NPWpqhHUU0
+                </div>
+                <p class="text-[10px] text-slate-400">Tabel otomatis: Settings, NavTabs, Books, Publications, Submissions</p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/60 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+                    <i data-lucide="folder-archive" class="w-4 h-4"></i> Google Drive Dokumen
+                  </span>
+                  <a href="https://drive.google.com/drive/folders/1YMAEJgT5iP2ZfZwSqNSH8HZ6jkpc5pPm" target="_blank" class="text-[11px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+                    <span>Buka Drive</span> <i data-lucide="external-link" class="w-3 h-3"></i>
+                  </a>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">ID Folder Penyimpanan Naskah & File:</p>
+                <div class="font-mono text-xs bg-white dark:bg-slate-900 p-2 rounded-lg border border-blue-200 dark:border-blue-900 break-all select-all font-semibold text-slate-800 dark:text-slate-200">
+                  1YMAEJgT5iP2ZfZwSqNSH8HZ6jkpc5pPm
+                </div>
+                <p class="text-[10px] text-slate-400">Draft naskah (.docx/.pdf) diunggah langsung ke folder ini.</p>
+              </div>
+            </div>
+
+            <!-- Web App URL Setup Form -->
+            <div class="bg-slate-50 dark:bg-slate-800/40 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-4">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Konfigurasi Web App URL (Google Apps Script)</h4>
+              
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-slate-600 dark:text-slate-400">Google Apps Script Web App URL (Exec URL):</label>
+                <input type="url" id="cfg-gas-endpoint" placeholder="https://script.google.com/macros/s/AKfycbx.../exec" class="w-full px-3.5 py-2 text-xs font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <span class="text-[11px] text-slate-400 mt-1 block">Didapat setelah menerapkan (deploy) skrip <code class="font-bold">Code.gs</code> sebagai Web App dengan akses "Anyone".</span>
+              </div>
+
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button type="button" onclick="handleSaveGasEndpoint()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+                  Simpan URL Endpoint
+                </button>
+                <button type="button" onclick="handlePullFromGoogleSheets()" class="px-4 py-2 rounded-xl border border-emerald-500 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-xs font-semibold transition flex items-center gap-1">
+                  <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                  <span>Tarik Data dari Google Sheet</span>
+                </button>
+                <button type="button" onclick="handlePushToGoogleSheets()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition flex items-center gap-1">
+                  <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                  <span>Kirim Data Lokal ke Google Sheet</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Instructions Accordion -->
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-2 text-slate-600 dark:text-slate-300 leading-relaxed">
+              <span class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5"><i data-lucide="help-circle" class="w-4 h-4 text-emerald-600"></i> Panduan Singkat Deploy Google Apps Script:</span>
+              <ol class="list-decimal pl-5 space-y-1">
+                <li>Buka Google Spreadsheet target (<a href="https://docs.google.com/spreadsheets/d/19LZshvPcKRGksvyHypLCpPUIH0Nli05I9NPWpqhHUU0" target="_blank" class="text-emerald-600 font-semibold underline">Klik di sini</a>).</li>
+                <li>Klik menu <strong>Extensions (Ekstensi)</strong> &gt; <strong>Apps Script</strong>.</li>
+                <li>Tempelkan seluruh kode dari file <code class="font-bold bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">Code.gs</code>.</li>
+                <li>Klik tombol <strong>Deploy (Terapkan)</strong> &gt; <strong>New Deployment (Penerapan Baru)</strong>.</li>
+                <li>Pilih tipe <strong>Web App</strong>, atur <em>Execute as: Me</em> dan <em>Who has access: Anyone</em>.</li>
+                <li>Salin Web App URL yang dihasilkan dan tempelkan pada kolom di atas, lalu klik <strong>Simpan URL Endpoint</strong>.</li>
+              </ol>
+            </div>
           </div>
 
         </div>
@@ -1222,6 +1327,11 @@
       catalogType: 'buku',
       pendingSubmission: null,
       confirmCallback: null,
+      uploadedFileBase64: null,
+      uploadedFileName: null,
+      uploadedFileMime: null,
+      cloudSyncing: false,
+      gasEndpoint: localStorage.getItem('pc_gas_endpoint') || '',
       settings: JSON.parse(localStorage.getItem('pc_settings')) || DEFAULT_SETTINGS,
       tabs: JSON.parse(localStorage.getItem('pc_tabs')) || DEFAULT_NAV_TABS,
       books: JSON.parse(localStorage.getItem('pc_books')) || DEFAULT_BOOKS,
@@ -1236,205 +1346,8 @@
       localStorage.setItem('pc_books', JSON.stringify(appState.books));
       localStorage.setItem('pc_pubs', JSON.stringify(appState.publications));
       localStorage.setItem('pc_subs', JSON.stringify(appState.submissions));
-    }
-
-    function resetToSampleData() {
-      showConfirm("Reset Data Demo", "Kembalikan seluruh data buku, publikasi, navigasi, dan pengaturan ke setelan pabrik demo?", (confirmed) => {
-        if (confirmed) {
-          localStorage.clear();
-          appState.settings = DEFAULT_SETTINGS;
-          appState.tabs = DEFAULT_NAV_TABS;
-          appState.books = DEFAULT_BOOKS;
-          appState.publications = DEFAULT_PUBLICATIONS;
-          appState.submissions = DEFAULT_SUBMISSIONS;
-          saveStateToStorage();
-          renderAll();
-          showToast("Data demo berhasil direset ke setelan awal!", "success");
-        }
-      });
-    }
-
-    const I18N = {
-      id: {
-        adminTitle: "Portal Admin",
-        heroBadge: "Penerbit Resmi Berstandar ISBN Perpusnas & OJS",
-        heroTitle: "Menerbitkan Karya Ilmiah & Sastra Berkelas Nasional",
-        heroDesc: "Membantu akademisi, peneliti, dan penulis mewujudkan naskah menjadi karya cetak & digital berkualitas tinggi, terindeks resmi, dan siap didistribusikan ke seluruh Indonesia.",
-        btnSubmit: "Kirim Naskah Anda",
-        btnCatalog: "Lihat Katalog Buku",
-        btnAllBooks: "Lihat Seluruh Katalog",
-        btnAllArticles: "Jelajahi Semua Artikel",
-        statBooks: "Buku Ber-ISBN",
-        statJournals: "Jurnal & Volume",
-        statAuthors: "Penulis Terdaftar",
-        statSatisfaction: "Tingkat Kepuasan Penulis",
-        wfTitle: "Alur Penerbitan Mudah & Transparan",
-        wfDesc: "Dari draft naskah mentah hingga buku ber-ISBN dan tercetak di tangan pembaca dalam 5 tahapan praktis."
-      },
-      en: {
-        adminTitle: "Admin Portal",
-        heroBadge: "Official Publisher with National ISBN & OJS Standards",
-        heroTitle: "Publishing High-Quality Scientific & Literary Works",
-        heroDesc: "Empowering academicians, researchers, and authors to turn manuscripts into certified printed & digital masterpieces distributed nationwide.",
-        btnSubmit: "Submit Manuscript",
-        btnCatalog: "Browse Book Catalog",
-        btnAllBooks: "View All Catalog",
-        btnAllArticles: "Explore All Articles",
-        statBooks: "ISBN Registered Books",
-        statJournals: "Journals & Volumes",
-        statAuthors: "Registered Authors",
-        statSatisfaction: "Author Satisfaction Rate",
-        wfTitle: "Simple & Transparent Publishing Workflow",
-        wfDesc: "From raw drafts to registered ISBN copies in readers' hands in 5 practical steps."
-      }
-    };
-
-    function setLanguage(lang) {
-      appState.lang = lang;
-      document.getElementById('lang-btn-id').className = lang === 'id' ? 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-600 text-white' : 'px-2.5 py-0.5 rounded-full text-xs font-semibold text-emerald-300 hover:text-white';
-      document.getElementById('lang-btn-en').className = lang === 'en' ? 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-600 text-white' : 'px-2.5 py-0.5 rounded-full text-xs font-semibold text-emerald-300 hover:text-white';
-
-      const t = I18N[lang];
-      document.getElementById('txt-btn-admin').textContent = t.adminTitle;
-      document.getElementById('hero-badge').textContent = t.heroBadge;
-      document.getElementById('hero-title').textContent = t.heroTitle;
-      document.getElementById('hero-desc').textContent = t.heroDesc;
-      document.getElementById('hero-btn-primary').textContent = t.btnSubmit;
-      document.getElementById('hero-btn-secondary').textContent = t.btnCatalog;
-      document.getElementById('btn-see-all-books').textContent = t.btnAllBooks;
-      document.getElementById('btn-see-all-articles').textContent = t.btnAllArticles;
-      document.getElementById('stat-lbl-1').textContent = t.statBooks;
-      document.getElementById('stat-lbl-2').textContent = t.statJournals;
-      document.getElementById('stat-lbl-3').textContent = t.statAuthors;
-      document.getElementById('stat-lbl-4').textContent = t.statSatisfaction;
-      document.getElementById('wf-title').textContent = t.wfTitle;
-      document.getElementById('wf-desc').textContent = t.wfDesc;
-
-      renderNavbar();
-      showToast(lang === 'id' ? 'Bahasa beralih ke Bahasa Indonesia' : 'Language switched to English', 'info');
-    }
-
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      const isDark = html.classList.toggle('dark');
-      appState.theme = isDark ? 'dark' : 'light';
-      localStorage.setItem('pc_theme', appState.theme);
-      
-      const themeIcon = document.getElementById('theme-icon');
-      if (isDark) {
-        themeIcon.setAttribute('data-lucide', 'sun');
-      } else {
-        themeIcon.setAttribute('data-lucide', 'moon');
-      }
-      lucide.createIcons();
-    }
-
-    function navigateTo(viewId) {
-      appState.currentView = viewId;
-      document.querySelectorAll('.page-view').forEach(view => {
-        view.classList.add('hidden');
-      });
-
-      const target = document.getElementById('view-' + viewId);
-      if (target) {
-        target.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      // Close mobile drawer if open
-      document.getElementById('mobile-menu').classList.add('hidden');
-      updateNavActiveStyles();
-      lucide.createIcons();
-    }
-
-    function updateNavActiveStyles() {
-      document.querySelectorAll('.nav-link-item').forEach(el => {
-        const path = el.getAttribute('data-path');
-        if (path === appState.currentView) {
-          el.classList.add('text-emerald-600', 'dark:text-emerald-400', 'font-bold');
-          el.classList.remove('text-slate-600', 'dark:text-slate-300');
-        } else {
-          el.classList.remove('text-emerald-600', 'dark:text-emerald-400', 'font-bold');
-          el.classList.add('text-slate-600', 'dark:text-slate-300');
-        }
-      });
-    }
-
-    function toggleMobileMenu() {
-      const menu = document.getElementById('mobile-menu');
-      menu.classList.toggle('hidden');
-    }
-
-    function renderNavbar() {
-      const desktopNav = document.getElementById('desktop-nav');
-      const mobileNav = document.getElementById('mobile-menu');
-
-      let desktopHtml = '';
-      let mobileHtml = '';
-
-      appState.tabs.sort((a, b) => a.order - b.order).forEach(tab => {
-        const label = appState.lang === 'id' ? tab.nameId : tab.nameEn;
-        const hasSubtabs = tab.subtabs && tab.subtabs.length > 0;
-
-        if (!hasSubtabs) {
-          desktopHtml += `
-            <a href="javascript:void(0)" onclick="navigateTo('${tab.path}')" data-path="${tab.path}" class="nav-link-item px-3.5 py-2 rounded-xl text-sm font-medium transition hover:text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-slate-800">
-              ${label}
-            </a>
-          `;
-          mobileHtml += `
-            <a href="javascript:void(0)" onclick="navigateTo('${tab.path}')" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800">
-              ${label}
-            </a>
-          `;
-        } else {
-          // Dropdown for Sub-tabs
-          desktopHtml += `
-            <div class="relative group">
-              <button onclick="navigateTo('${tab.path}')" data-path="${tab.path}" class="nav-link-item inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-sm font-medium transition hover:text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-slate-800">
-                <span>${label}</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform"></i>
-              </button>
-              <div class="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-                ${tab.subtabs.map(sub => `
-                  <a href="javascript:void(0)" onclick="handleSubtabClick('${tab.path}', '${sub}')" class="block px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400">
-                    ${sub}
-                  </a>
-                `).join('')}
-              </div>
-            </div>
-          `;
-
-          mobileHtml += `
-            <div class="space-y-1">
-              <a href="javascript:void(0)" onclick="navigateTo('${tab.path}')" class="block px-3 py-2 rounded-lg text-sm font-bold text-slate-900 dark:text-white">
-                ${label}
-              </a>
-              <div class="pl-4 space-y-1 border-l-2 border-emerald-500 ml-2">
-                ${tab.subtabs.map(sub => `
-                  <a href="javascript:void(0)" onclick="handleSubtabClick('${tab.path}', '${sub}')" class="block py-1 text-xs text-slate-600 dark:text-slate-400 hover:text-emerald-500">
-                    ${sub}
-                  </a>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }
-      });
-
-      desktopNav.innerHTML = desktopHtml;
-      mobileNav.innerHTML = mobileHtml;
-      updateNavActiveStyles();
-      lucide.createIcons();
-    }
-
-    function handleSubtabClick(tabPath, subtabName) {
-      navigateTo(tabPath);
-      if (tabPath === 'publikasi') {
-        filterPublications(subtabName);
-      } else if (tabPath === 'penerbit') {
-        if (subtabName.toLowerCase() === 'buku') switchCatalogType('buku');
-        if (subtabName.toLowerCase() === 'jurnal') switchCatalogType('jurnal');
+      if (appState.gasEndpoint) {
+        localStorage.setItem('pc_gas_endpoint', appState.gasEndpoint);
       }
     }
 
@@ -1800,6 +1713,15 @@
       const file = event.target.files[0];
       if (file) {
         document.getElementById('file-chosen-text').textContent = 'File Terpilih: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+        appState.uploadedFileName = file.name;
+        appState.uploadedFileMime = file.type;
+
+        // Convert to Base64 for Google Drive storage
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          appState.uploadedFileBase64 = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     }
 
@@ -1814,7 +1736,7 @@
       const title = document.getElementById('sub-title').value;
       const synopsis = document.getElementById('sub-synopsis').value;
       const fileInput = document.getElementById('file-upload-input');
-      const fileName = fileInput.files[0] ? fileInput.files[0].name : "Naskah_Draft_" + Date.now() + ".docx";
+      const fileName = fileInput.files[0] ? fileInput.files[0].name : (appState.uploadedFileName || "Draft_Naskah_" + Date.now() + ".docx");
 
       appState.pendingSubmission = {
         id: 'SUB-' + Math.floor(100000 + Math.random() * 900000),
@@ -1826,6 +1748,7 @@
         title,
         synopsis,
         fileName,
+        driveUrl: '',
         amount: cost,
         status: 'Menunggu Pembayaran',
         method: 'QRIS'
@@ -1851,58 +1774,58 @@
     function selectPayMethod(method) {
       if (appState.pendingSubmission) appState.pendingSubmission.method = method.toUpperCase();
       const content = document.getElementById('pay-method-content');
-      
-      const btnQris = document.getElementById('btn-pm-qris');
-      const btnVa = document.getElementById('btn-pm-va');
-      const btnEwallet = document.getElementById('btn-pm-ewallet');
-
-      [btnQris, btnVa, btnEwallet].forEach(b => {
-        b.className = 'p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold text-center hover:border-emerald-400';
-      });
-
-      if (method === 'qris') {
-        btnQris.className = 'p-2.5 rounded-xl border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center';
-        content.innerHTML = `
-          <div class="bg-white p-4 inline-block rounded-2xl shadow-inner border border-slate-200">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226600016ID.CO.QRIS.WWW01189360099800000000005204581253033605802ID5916PustakaCendekia6009Yogyakarta62070703A016304D1B8" alt="QRIS Code" class="w-40 h-40 mx-auto">
-          </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Pindai kode QRIS menggunakan e-Wallet atau m-Banking Anda</p>
-        `;
-      } else if (method === 'va') {
-        btnVa.className = 'p-2.5 rounded-xl border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center';
-        content.innerHTML = `
-          <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl text-left border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
-              <span class="font-bold text-slate-700 dark:text-slate-200">Bank Mandiri Virtual Account</span>
-              <span class="font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">88708-99482910</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-700 dark:text-slate-200">BCA Virtual Account</span>
-              <span class="font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">3901-0821456789</span>
-            </div>
-          </div>
-        `;
-      } else {
-        btnEwallet.className = 'p-2.5 rounded-xl border border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center';
-        content.innerHTML = `
-          <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl text-center border border-slate-200 dark:border-slate-700 text-xs space-y-2">
-            <p class="text-slate-600 dark:text-slate-300">Notifikasi pembayaran instan akan dikirimkan ke nomor:</p>
-            <p class="text-base font-mono font-bold text-emerald-600">${document.getElementById('sub-phone').value || '0812-XXXX-XXXX'}</p>
-            <span class="text-[11px] text-slate-400">Pastikan saldo GoPay / OVO / Dana Anda mencukupi.</span>
-          </div>
-        `;
-      }
-    }
-
-    function confirmSimulatedPayment() {
+    async function confirmSimulatedPayment() {
       if (!appState.pendingSubmission) return;
       appState.pendingSubmission.status = "Lunas (Terverifikasi)";
+
+      // Upload file directly to Google Drive Folder (1YMAEJgT5iP2ZfZwSqNSH8HZ6jkpc5pPm) if configured
+      if (appState.gasEndpoint && appState.uploadedFileBase64) {
+        showToast("Mengunggah naskah ke Google Drive...", "info");
+        try {
+          const driveRes = await fetch(appState.gasEndpoint, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'uploadManuscript',
+              fileName: appState.uploadedFileName || appState.pendingSubmission.fileName,
+              mimeType: appState.uploadedFileMime || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+              base64Data: appState.uploadedFileBase64
+            })
+          });
+          const driveData = await driveRes.json();
+          if (driveData.success) {
+            appState.pendingSubmission.driveUrl = driveData.fileUrl;
+            showToast("Naskah tersimpan di Google Drive!", "success");
+          }
+        } catch (e) {
+          console.warn("Gagal unggah Google Drive, menyimpan lokal:", e);
+        }
+      }
+
       appState.submissions.unshift(appState.pendingSubmission);
       saveStateToStorage();
       closePaymentModal();
       document.getElementById('submission-form').reset();
       document.getElementById('file-chosen-text').textContent = 'Klik untuk memilih file naskah Anda';
-      showToast("Pembayaran diverifikasi! Naskah berhasil didaftarkan ke redaksi.", "success");
+      appState.uploadedFileBase64 = null;
+
+      // Sync submission row to Google Sheet
+      if (appState.gasEndpoint) {
+        try {
+          fetch(appState.gasEndpoint, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'addSubmission',
+              data: appState.pendingSubmission
+            })
+          });
+        } catch (err) {}
+      }
+
+      showToast("Pembayaran diverifikasi! Naskah berhasil didaftarkan ke redaksi & cloud.", "success");
       updateAdminDashboardStats();
     }
 
@@ -2278,7 +2201,10 @@
             <div class="font-bold">${s.author}</div>
             <div class="text-[10px] text-slate-400">${s.email} | ${s.phone}</div>
           </td>
-          <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">${s.title}</td>
+          <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">
+            <div>${s.title}</div>
+            <div class="text-[10px] text-slate-400 italic font-normal">${s.fileName || ''}</div>
+          </td>
           <td class="p-3"><span class="bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-[10px]">${s.category}</span></td>
           <td class="p-3">
             <span class="inline-flex items-center gap-1 font-bold text-[10px] px-2.5 py-1 rounded-full ${s.status.includes('Lunas') ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800'}">
@@ -2287,108 +2213,193 @@
             </span>
           </td>
           <td class="p-3 text-right">
-            <button onclick="showToast('Mengunduh draft ${s.fileName}...', 'info')" class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-600 hover:text-white transition">
-              Unduh Draft
-            </button>
+            ${s.driveUrl ? `
+              <a href="${s.driveUrl}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-semibold hover:bg-blue-600 hover:text-white transition">
+                <i data-lucide="folder-check" class="w-3.5 h-3.5"></i>
+                Buka di Drive
+              </a>
+            ` : `
+              <button onclick="showToast('Draft lokal: ${s.fileName || 'Naskah'}', 'info')" class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-600 hover:text-white transition">
+                Draft Lokal
+              </button>
+            `}
           </td>
         </tr>
       `).join('');
       lucide.createIcons();
     }
+    function switchAdminTab(tabKey) {
+      document.querySelectorAll('.admin-pane').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.admtab-btn').forEach(b => {
+        b.className = 'admtab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800';
+      });
 
-    function populateAdminSettingsForm() {
-      const s = appState.settings;
-      document.getElementById('cfg-brand-name').value = s.brandName;
-      document.getElementById('cfg-brand-tagline').value = s.brandTagline;
-      document.getElementById('cfg-hero-bg').value = s.heroBg;
-      document.getElementById('cfg-email').value = s.email;
-      document.getElementById('cfg-phone').value = s.phone;
-      document.getElementById('cfg-address').value = s.address;
-      document.getElementById('cfg-copyright').value = s.copyright;
+      const activeBtn = document.getElementById('admtab-' + tabKey);
+      if (activeBtn) activeBtn.className = 'admtab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white shadow-sm';
+
+      const targetPane = document.getElementById('admin-pane-' + tabKey);
+      if (targetPane) targetPane.classList.remove('hidden');
+
+      if (tabKey === 'stat') updateAdminDashboardStats();
+      if (tabKey === 'navs') renderAdminNavTable();
+      if (tabKey === 'books') renderAdminBooksTable();
+      if (tabKey === 'pubs') renderAdminPubsTable();
+      if (tabKey === 'subs') renderAdminSubsTable();
+      if (tabKey === 'settings') populateAdminSettingsForm();
+      if (tabKey === 'gsuite') populateGSuiteSettings();
+      lucide.createIcons();
     }
 
-    function handleSaveSiteSettings(event) {
-      event.preventDefault();
-      appState.settings.brandName = document.getElementById('cfg-brand-name').value;
-      appState.settings.brandTagline = document.getElementById('cfg-brand-tagline').value;
-      appState.settings.heroBg = document.getElementById('cfg-hero-bg').value;
-      appState.settings.email = document.getElementById('cfg-email').value;
-      appState.settings.phone = document.getElementById('cfg-phone').value;
-      appState.settings.address = document.getElementById('cfg-address').value;
-      appState.settings.copyright = document.getElementById('cfg-copyright').value;
+    /* ============================================================
+       GOOGLE APPS SCRIPT, SHEETS & DRIVE CLOUD INTEGRATION
+       ============================================================ */
 
-      saveStateToStorage();
-      applySiteSettings();
-      showToast("Pengaturan tampilan website berhasil disimpan!", "success");
+    function populateGSuiteSettings() {
+      const input = document.getElementById('cfg-gas-endpoint');
+      if (input) input.value = appState.gasEndpoint || '';
     }
 
-    function applySiteSettings() {
-      const s = appState.settings;
-      document.getElementById('brand-name').textContent = s.brandName;
-      document.getElementById('brand-tagline').textContent = s.brandTagline;
-      document.getElementById('footer-brand-name').textContent = s.brandName;
-      document.getElementById('hero-banner').style.backgroundImage = `url('${s.heroBg}')`;
-      document.getElementById('topbar-email').textContent = s.email;
-      document.getElementById('topbar-phone').textContent = s.phone;
-      document.getElementById('footer-email').textContent = s.email;
-      document.getElementById('footer-phone').textContent = s.phone;
-      document.getElementById('footer-address').textContent = s.address;
-      document.getElementById('footer-copyright').textContent = s.copyright;
+    function handleSaveGasEndpoint() {
+      const input = document.getElementById('cfg-gas-endpoint');
+      const val = input.value.trim();
+      appState.gasEndpoint = val;
+      localStorage.setItem('pc_gas_endpoint', val);
+      updateSyncBadge();
+      showToast("URL Endpoint Google Apps Script berhasil disimpan!", "success");
     }
 
-    function updateAdminDashboardStats() {
-      document.getElementById('adm-count-subs').textContent = appState.submissions.length;
-      document.getElementById('adm-count-books').textContent = appState.books.length;
-      document.getElementById('adm-count-pubs').textContent = appState.publications.length;
-
-      const totalRevenue = appState.submissions
-        .filter(s => s.status.includes('Lunas'))
-        .reduce((sum, s) => sum + (s.amount || 0), 0);
-      document.getElementById('adm-count-rev').textContent = 'Rp ' + totalRevenue.toLocaleString('id-ID');
-    }
-
-    function showToast(message, type = 'success') {
-      const box = document.getElementById('toast-box');
-      const inner = document.getElementById('toast-inner');
-      const msgEl = document.getElementById('toast-message');
-      const icon = document.getElementById('toast-icon');
-
-      msgEl.textContent = message;
-
-      if (type === 'error') {
-        inner.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-rose-700 text-white shadow-xl text-xs font-semibold';
-        icon.setAttribute('data-lucide', 'alert-circle');
-      } else if (type === 'info') {
-        inner.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-800 text-white shadow-xl text-xs font-semibold';
-        icon.setAttribute('data-lucide', 'info');
-      } else {
-        inner.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-800 text-white shadow-xl text-xs font-semibold';
-        icon.setAttribute('data-lucide', 'check-circle');
+    function openGSuiteModalDirectly() {
+      openAdminModal();
+      if (appState.adminLoggedIn) {
+        switchAdminTab('gsuite');
       }
-
-      box.classList.remove('translate-y-24', 'opacity-0');
-      box.classList.add('translate-y-0', 'opacity-100');
-      lucide.createIcons();
-
-      setTimeout(() => {
-        box.classList.add('translate-y-24', 'opacity-0');
-        box.classList.remove('translate-y-0', 'opacity-100');
-      }, 3500);
     }
 
-    function showConfirm(title, message, callback) {
-      document.getElementById('confirm-title').textContent = title;
-      document.getElementById('confirm-msg').textContent = message;
-      appState.confirmCallback = callback;
-      document.getElementById('confirm-modal').classList.remove('hidden');
-      lucide.createIcons();
+    function updateSyncBadge() {
+      const badge = document.getElementById('topbar-sync-badge');
+      const dot = document.getElementById('sync-indicator-dot');
+      const text = document.getElementById('sync-indicator-text');
+
+      if (!appState.gasEndpoint) {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.textContent = "Google Sync: Konfigurasi";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        text.textContent = "Google Sync: Siap";
+      }
     }
 
-    function closeConfirmModal(result) {
-      document.getElementById('confirm-modal').classList.add('hidden');
-      if (appState.confirmCallback) {
-        appState.confirmCallback(result);
-        appState.confirmCallback = null;
+    async function testGoogleConnection() {
+      if (!appState.gasEndpoint) {
+        showToast("Silakan masukkan URL Web App Google Apps Script terlebih dahulu!", "error");
+        return;
+      }
+      showToast("Menguji koneksi ke Google Spreadsheet...", "info");
+      try {
+        const res = await fetch(appState.gasEndpoint + '?action=status');
+        const data = await res.json();
+        if (data.success) {
+          showToast("Koneksi Sukses! Terhubung ke Google Sheet & Drive.", "success");
+        } else {
+          showToast("Gagal: " + (data.message || "Respon tidak valid"), "error");
+        }
+      } catch (err) {
+        showToast("Koneksi gagal. Pastikan hak akses Web App adalah 'Anyone'.", "error");
+      }
+    }
+
+    async function handleAutoInitSheets() {
+      if (!appState.gasEndpoint) {
+        showToast("Harap simpan URL Endpoint Web App terlebih dahulu!", "error");
+        return;
+      }
+      showToast("Sedang membuat sheet otomatis di Google Spreadsheet...", "info");
+      try {
+        const res = await fetch(appState.gasEndpoint, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'initSheets' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, "success");
+        } else {
+          showToast("Gagal membuat sheet: " + data.message, "error");
+        }
+      } catch (e) {
+        showToast("Terjadi kesalahan koneksi saat membuat sheet.", "error");
+      }
+    }
+
+    async function handlePullFromGoogleSheets() {
+      if (!appState.gasEndpoint) {
+        showToast("Harap konfigurasi URL Web App Google Apps Script!", "error");
+        return;
+      }
+      showToast("Mengunduh data terbaru dari Google Sheets...", "info");
+      try {
+        const res = await fetch(appState.gasEndpoint + '?action=getAll');
+        const data = await res.json();
+        if (data.success) {
+          if (data.settings && data.settings.length > 0) {
+            data.settings.forEach(item => {
+              if (item.key && item.value !== undefined) {
+                appState.settings[item.key] = item.value;
+              }
+            });
+          }
+          if (data.tabs && data.tabs.length > 0) appState.tabs = data.tabs;
+          if (data.books && data.books.length > 0) appState.books = data.books;
+          if (data.publications && data.publications.length > 0) appState.publications = data.publications;
+          if (data.submissions && data.submissions.length > 0) appState.submissions = data.submissions;
+
+          saveStateToStorage();
+          renderAll();
+          showToast("Data dari Google Sheets berhasil disinkronkan ke website!", "success");
+        }
+      } catch (err) {
+        showToast("Gagal menarik data dari Google Sheets.", "error");
+      }
+    }
+
+    async function handlePushToGoogleSheets() {
+      if (!appState.gasEndpoint) {
+        showToast("Harap konfigurasi URL Web App Google Apps Script!", "error");
+        return;
+      }
+      showToast("Mengunggah seluruh data lokal ke Google Sheets...", "info");
+
+      // Transform settings object to key-value array
+      const settingsArray = Object.keys(appState.settings).map(k => ({
+        key: k,
+        value: appState.settings[k]
+      }));
+
+      const payload = {
+        action: 'syncAll',
+        settings: settingsArray,
+        tabs: appState.tabs,
+        books: appState.books,
+        publications: appState.publications,
+        submissions: appState.submissions
+      };
+
+      try {
+        const res = await fetch(appState.gasEndpoint, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Seluruh database berhasil tersimpan di Google Sheets!", "success");
+        } else {
+          showToast("Gagal: " + data.message, "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kendala pengiriman data ke Google Sheets.", "error");
       }
     }
 
@@ -2407,8 +2418,14 @@
         document.getElementById('theme-icon').setAttribute('data-lucide', 'sun');
       }
 
+      updateSyncBadge();
       renderAll();
       lucide.createIcons();
+
+      // Silent background pull from Google Sheets if configured
+      if (appState.gasEndpoint) {
+        handlePullFromGoogleSheets().catch(() => {});
+      }
     });
   </script>
 </body>
